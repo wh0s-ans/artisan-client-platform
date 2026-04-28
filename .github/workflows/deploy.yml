@@ -1,0 +1,134 @@
+name: Build and Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+  BACKEND_IMAGE_NAME: user-manager-backend
+  FRONTEND_IMAGE_NAME: user-manager-frontend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    outputs:
+      backend-image-tag: ${{ steps.image.outputs.backend-tag }}
+      frontend-image-tag: ${{ steps.image.outputs.frontend-tag }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Generate image tags
+        id: image
+        run: |
+          TIMESTAMP=$(date +%s)
+          COMMIT_SHA=${{ github.sha }}
+          SHORT_SHA=${COMMIT_SHA:0:7}
+          
+          BACKEND_TAG="${{ env.ECR_REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${SHORT_SHA}-${TIMESTAMP}"
+          FRONTEND_TAG="${{ env.ECR_REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${SHORT_SHA}-${TIMESTAMP}"
+          
+          echo "backend-tag=${BACKEND_TAG}" >> $GITHUB_OUTPUT
+          echo "frontend-tag=${FRONTEND_TAG}" >> $GITHUB_OUTPUT
+          echo "Backend image: ${BACKEND_TAG}"
+          echo "Frontend image: ${FRONTEND_TAG}"
+
+      - name: Build and push backend image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ steps.image.outputs.backend-tag }}
+        run: |
+          docker build -t ${{ steps.image.outputs.backend-tag }} ./backend
+          docker push ${{ steps.image.outputs.backend-tag }}
+          
+          # Also tag as 'latest'
+          LATEST_TAG="${{ env.ECR_REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:latest"
+          docker tag ${{ steps.image.outputs.backend-tag }} ${LATEST_TAG}
+          docker push ${LATEST_TAG}
+
+      - name: Build and push frontend image
+        run: |
+          docker build -t ${{ steps.image.outputs.frontend-tag }} ./frontend
+          docker push ${{ steps.image.outputs.frontend-tag }}
+          
+          # Also tag as 'latest'
+          LATEST_TAG="${{ env.ECR_REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest"
+          docker tag ${{ steps.image.outputs.frontend-tag }} ${LATEST_TAG}
+          docker push ${LATEST_TAG}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update ECS service (Backend)
+        run: |
+          aws ecs update-service \
+            --cluster user-manager-cluster \
+            --service user-manager-backend-service \
+            --force-new-deployment \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Update ECS service (Frontend)
+        run: |
+          aws ecs update-service \
+            --cluster user-manager-cluster \
+            --service user-manager-frontend-service \
+            --force-new-deployment \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Wait for services to update
+        run: |
+          aws ecs wait services-stable \
+            --cluster user-manager-cluster \
+            --services user-manager-backend-service user-manager-frontend-service \
+            --region ${{ env.AWS_REGION }}
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [build, deploy]
+    if: always()
+
+    steps:
+      - name: Deployment status
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deployment successful!"
+          else
+            echo "❌ Deployment failed!"
+          fi

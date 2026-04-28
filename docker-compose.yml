@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: projet-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./test.db
+      - ENVIRONMENT=development
+    volumes:
+      - ./backend:/app
+    networks:
+      - projet-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: projet-frontend
+    ports:
+      - "3000:5173"
+    environment:
+      - VITE_API_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - projet-network
+
+networks:
+  projet-network:
+    driver: bridge
