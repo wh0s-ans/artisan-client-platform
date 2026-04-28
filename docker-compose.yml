@@ -1,6 +1,25 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: projet-postgres
+    environment:
+      POSTGRES_USER: artisan_user
+      POSTGRES_PASSWORD: artisan_password
+      POSTGRES_DB: artisan_platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - projet-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U artisan_user -d artisan_platform"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -9,10 +28,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:///./test.db
+      - DATABASE_URL=postgresql://artisan_user:artisan_password@postgres:5432/artisan_platform
       - ENVIRONMENT=development
     volumes:
       - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - projet-network
 
@@ -29,6 +51,9 @@ services:
       - backend
     networks:
       - projet-network
+
+volumes:
+  postgres_data:
 
 networks:
   projet-network:
