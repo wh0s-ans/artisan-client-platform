@@ -1,34 +1,28 @@
 import { Link } from 'react-router-dom';
-import './LandingPage.css';
+import { useState, useEffect } from 'react';
+import { usersAPI, demandsAPI } from '../api';
 import { CATEGORIES } from '../utils/constants';
+import './LandingPage.css';
 
-const FEATURED_ARTISANS = [
-  { initials: 'KA', name: 'Karim Amrani', job: 'Plombier certifié', loc: 'Alger · 2.3 km', rating: 4.9, reviews: 87, resp: '2h', tags: ["Fuite d'eau", 'Chauffe-eau', 'Salle de bain'], price: '3 000 DA', color: 'pu', badge: 'v' },
-  { initials: 'SB', name: 'Sara Benali', job: 'Électricienne', loc: 'Alger · 4.1 km', rating: 5.0, reviews: 142, resp: '1h', tags: ['Tableau élec.', 'Domotique', 'Rénovation'], price: '4 000 DA', color: 'te', badge: 't' },
-  { initials: 'OM', name: 'Omar El Fassi', job: 'Peintre décorateur', loc: 'Oran · 6.7 km', rating: 4.3, reviews: 53, resp: '24h', tags: ['Intérieur', 'Façade', 'Enduit'], price: '2 500 DA', color: 'co', badge: 'v' },
-  { initials: 'HM', name: 'Hassan Mouti', job: 'Menuisier', loc: 'Alger · 3.5 km', rating: 4.7, reviews: 38, resp: '3h', tags: ['Portes', 'Placards', 'Parquet'], price: '3 500 DA', color: 'am', badge: 'n' },
+const AV_COLORS = [
+  { bg: '#EEEDFE', color: '#3C3489' },
+  { bg: '#E1F5EE', color: '#085041' },
+  { bg: '#FAECE7', color: '#712B13' },
+  { bg: '#FAEEDA', color: '#633806' },
+  { bg: '#E6F1FB', color: '#0C447C' },
+  { bg: '#FBEAF0', color: '#72243E' },
 ];
 
-const AV_COLORS = {
-  pu: { bg: '#EEEDFE', color: '#3C3489' },
-  te: { bg: '#E1F5EE', color: '#085041' },
-  co: { bg: '#FAECE7', color: '#712B13' },
-  am: { bg: '#FAEEDA', color: '#633806' },
-  bl: { bg: '#E6F1FB', color: '#0C447C' },
-  pi: { bg: '#FBEAF0', color: '#72243E' },
-};
-
-const BADGES = {
-  v: { label: 'Profil vérifié', bg: '#EEEDFE', color: '#3C3489' },
-  t: { label: 'Top artisan', bg: '#FAEEDA', color: '#633806' },
-  n: { label: 'Nouveau', bg: '#E1F5EE', color: '#085041' },
-};
+function getInitials(firstName, lastName) {
+  return `${(firstName || '')[0] || ''}${(lastName || '')[0] || ''}`.toUpperCase();
+}
 
 function Stars({ rating }) {
+  const r = Math.round(rating || 0);
   return (
     <div className="lp-stars">
       {[1,2,3,4,5].map(i => (
-        <svg key={i} className={`lp-star${i <= Math.round(rating) ? '' : ' lp-star-e'}`} viewBox="0 0 10 10">
+        <svg key={i} className={`lp-star${i <= r ? '' : ' lp-star-e'}`} viewBox="0 0 10 10">
           <path d="M5 1l1.1 2.4 2.6.3-1.9 1.8.5 2.6L5 6.9 2.7 8.1l.5-2.6L1.3 3.7l2.6-.3z"/>
         </svg>
       ))}
@@ -37,6 +31,35 @@ function Stars({ rating }) {
 }
 
 export default function LandingPage() {
+  const [artisans, setArtisans] = useState([]);
+  const [stats, setStats] = useState({ artisanCount: 0, demandCount: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [artisansRes, demandsRes] = await Promise.all([
+          usersAPI.list('artisan'),
+          demandsAPI.list(),
+        ]);
+        setArtisans(artisansRes.data || []);
+        const allArtisans = artisansRes.data || [];
+        const allDemands = demandsRes.data || [];
+        setStats({
+          artisanCount: allArtisans.length,
+          demandCount: allDemands.length,
+        });
+      } catch (err) {
+        console.error('Failed to load landing data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const displayedArtisans = artisans.slice(0, 4);
+
   return (
     <div className="lp-root">
       {/* NAV */}
@@ -107,61 +130,107 @@ export default function LandingPage() {
           <Link to="/register" className="lp-sec-link">Voir toutes les catégories</Link>
         </div>
         <div className="lp-cats-grid">
-          {CATEGORIES.slice(0, 4).map(c => (
-            <div key={c.value} className="lp-ccat">
-              <div className="lp-ccat-icon">{c.label.split(' ')[0]}</div>
-              <div className="lp-ccat-name">{c.label.split(' ').slice(1).join(' ')}</div>
-              <div className="lp-ccat-count">{Math.floor(Math.random()*200+100)} artisans</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ARTISANS */}
-      <div className="lp-section">
-        <div className="lp-sec-head">
-          <div className="lp-sec-title">Artisans disponibles près de vous</div>
-          <Link to="/register" className="lp-sec-link">Voir tous les artisans</Link>
-        </div>
-        <div className="lp-pros-grid">
-          {FEATURED_ARTISANS.map((a, i) => {
-            const avStyle = AV_COLORS[a.color];
-            const badge = BADGES[a.badge];
+          {CATEGORIES.slice(0, 4).map(c => {
+            const count = artisans.filter(a =>
+              (a.specialties || []).some(s => s.toLowerCase().includes(c.value))
+            ).length;
             return (
-              <div key={i} className="lp-pro-card">
-                <div className="lp-pc-top">
-                  <div className="lp-av" style={{ background: avStyle.bg, color: avStyle.color }}>{a.initials}</div>
-                  <div className="lp-pc-info">
-                    <div className="lp-pc-name">{a.name}</div>
-                    <div className="lp-pc-job">{a.job}</div>
-                    <div className="lp-pc-loc">{a.loc}</div>
-                  </div>
-                </div>
-                <div className="lp-pc-badge" style={{ background: badge.bg, color: badge.color }}>
-                  {a.badge === 'v' ? '✓ ' : a.badge === 't' ? '★ ' : '● '}{badge.label}
-                </div>
-                <div className="lp-pc-stars-row">
-                  <Stars rating={a.rating} />
-                  <span className="lp-rn">{a.rating}</span>
-                  <span className="lp-rc">({a.reviews} avis)</span>
-                </div>
-                <div className="lp-pc-resp"><div className="lp-resp-dot" />Répond en moins de {a.resp}</div>
-                <div className="lp-pc-tags">{a.tags.map((t,j) => <span key={j} className="lp-ptag">{t}</span>)}</div>
-                <div className="lp-pc-foot">
-                  <div className="lp-pc-price">{a.price} <em>/ heure</em></div>
-                  <Link to="/register" className="lp-pc-cta">Contacter</Link>
-                </div>
+              <div key={c.value} className="lp-ccat">
+                <div className="lp-ccat-icon">{c.label.split(' ')[0]}</div>
+                <div className="lp-ccat-name">{c.label.split(' ').slice(1).join(' ')}</div>
+                <div className="lp-ccat-count">{count} artisan{count !== 1 ? 's' : ''}</div>
               </div>
             );
           })}
         </div>
       </div>
 
+      {/* ARTISANS */}
+      <div className="lp-section">
+        <div className="lp-sec-head">
+          <div className="lp-sec-title">
+            {displayedArtisans.length > 0
+              ? 'Artisans disponibles sur la plateforme'
+              : 'Aucun artisan inscrit pour le moment'}
+          </div>
+          {displayedArtisans.length > 0 && (
+            <Link to="/register" className="lp-sec-link">Voir tous les artisans</Link>
+          )}
+        </div>
+        <div className="lp-pros-grid">
+          {loading ? (
+            <div className="lp-loading">Chargement...</div>
+          ) : displayedArtisans.length === 0 ? (
+            <div className="lp-empty">
+              <div className="lp-empty-icon">👷</div>
+              <div className="lp-empty-text">Soyez le premier artisan à rejoindre la plateforme !</div>
+              <Link to="/register" className="lp-empty-btn">S'inscrire comme artisan</Link>
+            </div>
+          ) : (
+            displayedArtisans.map((a, i) => {
+              const avStyle = AV_COLORS[i % AV_COLORS.length];
+              const initials = getInitials(a.first_name, a.last_name);
+              const specialties = a.specialties || [];
+              const isVerified = a.is_verified;
+              const isNew = a.total_ratings === 0;
+
+              return (
+                <div key={a.id} className="lp-pro-card">
+                  <div className="lp-pc-top">
+                    <div className="lp-av" style={{ background: avStyle.bg, color: avStyle.color }}>{initials}</div>
+                    <div className="lp-pc-info">
+                      <div className="lp-pc-name">{a.first_name} {a.last_name}</div>
+                      <div className="lp-pc-job">{specialties[0] || 'Artisan'}</div>
+                      {a.location && <div className="lp-pc-loc">{a.location}</div>}
+                    </div>
+                  </div>
+                  <div className="lp-pc-badge" style={{
+                    background: isVerified ? '#EEEDFE' : isNew ? '#E1F5EE' : '#FAEEDA',
+                    color: isVerified ? '#3C3489' : isNew ? '#085041' : '#633806'
+                  }}>
+                    {isVerified ? '✓ Profil vérifié' : isNew ? '● Nouveau' : '★ Artisan actif'}
+                  </div>
+                  <div className="lp-pc-stars-row">
+                    <Stars rating={a.average_rating} />
+                    <span className="lp-rn">{(a.average_rating || 0).toFixed(1)}</span>
+                    <span className="lp-rc">({a.total_ratings || 0} avis)</span>
+                  </div>
+                  {a.bio && <div className="lp-pc-resp">{a.bio}</div>}
+                  {specialties.length > 0 && (
+                    <div className="lp-pc-tags">
+                      {specialties.slice(0, 3).map((t, j) => <span key={j} className="lp-ptag">{t}</span>)}
+                    </div>
+                  )}
+                  <div className="lp-pc-foot">
+                    <div className="lp-pc-price" />
+                    <Link to="/register" className="lp-pc-cta">Contacter</Link>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* STATS BAR */}
+      {(stats.artisanCount > 0 || stats.demandCount > 0) && (
+        <div className="lp-stats-bar">
+          <div className="lp-stat-item">
+            <div className="lp-stat-num">{stats.artisanCount}</div>
+            <div className="lp-stat-label">Artisan{stats.artisanCount !== 1 ? 's' : ''} inscrit{stats.artisanCount !== 1 ? 's' : ''}</div>
+          </div>
+          <div className="lp-stat-item">
+            <div className="lp-stat-num">{stats.demandCount}</div>
+            <div className="lp-stat-label">Demande{stats.demandCount !== 1 ? 's' : ''} publiée{stats.demandCount !== 1 ? 's' : ''}</div>
+          </div>
+        </div>
+      )}
+
       {/* CTA */}
       <div className="lp-cta-bar">
         <div>
           <div className="lp-cta-text">Vous êtes un artisan professionnel ?</div>
-          <div className="lp-cta-sub">Rejoignez des centaines d'artisans et trouvez de nouveaux clients chaque semaine</div>
+          <div className="lp-cta-sub">Rejoignez la plateforme et trouvez de nouveaux clients chaque semaine</div>
         </div>
         <Link to="/register" className="lp-cta-btn">Créer mon profil artisan</Link>
       </div>

@@ -103,6 +103,20 @@
 .lp-cta-btn { padding:9px 20px; background:#534AB7; color:white; border:none; border-radius:6px; font-size:13px; font-weight:500; cursor:pointer; text-decoration:none; display:inline-block; }
 .lp-cta-btn:hover { background:#4338a0; color:white; }
 
+/* LOADING & EMPTY STATE */
+.lp-loading { text-align:center; padding:40px 20px; font-size:14px; color:#9a9aa5; grid-column:1/-1; }
+.lp-empty { text-align:center; padding:40px 20px; grid-column:1/-1; }
+.lp-empty-icon { font-size:48px; margin-bottom:12px; }
+.lp-empty-text { font-size:14px; color:#5f5f6b; margin-bottom:16px; }
+.lp-empty-btn { display:inline-block; padding:9px 22px; background:#534AB7; color:white; border:none; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; text-decoration:none; }
+.lp-empty-btn:hover { background:#4338a0; color:white; }
+
+/* STATS BAR */
+.lp-stats-bar { display:flex; justify-content:center; gap:48px; padding:20px 24px; background:#fff; border-top:.5px solid #ededf0; border-bottom:.5px solid #ededf0; }
+.lp-stat-item { text-align:center; }
+.lp-stat-num { font-size:24px; font-weight:600; color:#534AB7; }
+.lp-stat-label { font-size:12px; color:#5f5f6b; margin-top:2px; }
+
 /* RESPONSIVE */
 @media(max-width:768px) {
   .lp-nav-r .lp-nb-o { display:none; }
