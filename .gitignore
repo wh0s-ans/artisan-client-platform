@@ -43,6 +43,3 @@ dist/
 .env
 .env.local
 .env.*.local
-
-# Docker
-.docker/

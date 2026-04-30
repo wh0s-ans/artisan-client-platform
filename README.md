@@ -14,8 +14,7 @@ artisan-client-platform/
 │   ├── init_db.py            # Database initialization script
 │   ├── create_db.py          # Database creation helper
 │   ├── test_db.py            # Database connection test
-│   ├── requirements.txt      # Python dependencies
-│   └── Dockerfile            # Backend Docker image
+│   └── requirements.txt      # Python dependencies
 ├── frontend/                 # React + Vite frontend
 │   ├── src/
 │   │   ├── pages/            # Page components
@@ -25,17 +24,11 @@ artisan-client-platform/
 │   │   └── utils/            # Utility functions
 │   ├── index.html            # HTML entry point
 │   ├── package.json          # Node dependencies
-│   ├── vite.config.js        # Vite configuration
-│   ├── nginx.conf            # Nginx config (production)
-│   └── Dockerfile            # Frontend Docker image
-├── infrastructure/           # AWS CloudFormation templates
-├── .github/workflows/        # CI/CD pipeline
-├── docker-compose.yml        # Local development with Docker
+│   └── vite.config.js        # Vite configuration
+├── .github/workflows/        # CI pipeline (tests & linting)
 ├── .env.example              # Environment variables template
-├── .replit                   # Replit configuration
-├── replit.nix                # Nix packages for Replit
-├── setup.sh                  # Linux/Mac setup script
-└── setup.bat                 # Windows setup script
+├── .replit                   # Replit run configuration
+└── replit.nix                # Nix packages for Replit
 ```
 
 ## Tech Stack
@@ -46,18 +39,26 @@ artisan-client-platform/
 | **Frontend**   | React, Vite, React Router           |
 | **Database**   | PostgreSQL                          |
 | **Auth**       | JWT (python-jose), bcrypt           |
-| **Deploy**     | Docker, AWS ECS, GitHub Actions     |
+| **Hosting**    | Replit                              |
+| **CI**         | GitHub Actions                      |
 
 ## Getting Started
 
-### Prerequisites
+### On Replit (Recommended)
 
+1. Import the repo on [Replit](https://replit.com)
+2. Replit will auto-detect PostgreSQL and Python
+3. Click **Run** — the backend starts automatically on port 8000
+4. The frontend can be built and served by the backend in production
+
+### Local Development
+
+#### Prerequisites
 - Python 3.12+
 - Node.js 20+
 - PostgreSQL 15+
 
-### Backend
-
+#### Backend
 ```bash
 cd backend
 pip install -r requirements.txt
@@ -66,25 +67,14 @@ python init_db.py            # Initialize tables
 uvicorn main:app --reload    # Start dev server on :8000
 ```
 
-API docs available at: `http://localhost:8000/docs`
+API docs: `http://localhost:8000/docs`
 
-### Frontend
-
+#### Frontend
 ```bash
 cd frontend
 npm install
 npm run dev                  # Start dev server on :5173
 ```
-
-### Docker (full stack)
-
-```bash
-docker-compose up --build    # Starts PostgreSQL + Backend + Frontend
-```
-
-- Backend: `http://localhost:8000`
-- Frontend: `http://localhost:3000`
-- PostgreSQL: `localhost:5432`
 
 ## API Endpoints
 
@@ -124,17 +114,12 @@ SECRET_KEY=your-secret-key
 VITE_API_URL=http://localhost:8000
 ```
 
-## Deployment
+## Deployment on Replit
 
-### Replit
-
-The project is configured for Replit deployment. Just click **Run**.
-
-### Docker + AWS
-
-1. Run `./setup.sh` (Linux/Mac) or `setup.bat` (Windows)
-2. Configure AWS credentials: `aws configure`
-3. Add GitHub secrets: `AWS_ACCOUNT_ID`
-4. Push to `main` branch — CI/CD handles the rest
-
-See `infrastructure/cloudformation.yml` for the full AWS stack definition.
+1. Push your code to GitHub
+2. Import the repo on Replit
+3. Set environment variables in Replit Secrets:
+   - `DATABASE_URL` — your PostgreSQL connection string
+   - `SECRET_KEY` — a secure random string for JWT
+4. Click **Run** — the app starts automatically
+5. Use **Deploy** tab to publish your app with a custom domain

@@ -1,4 +1,4 @@
-run = "cd backend && pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000"
+run = "cd backend && pip install -r requirements.txt && python init_db.py && uvicorn main:app --host 0.0.0.0 --port 8000"
 
 [nix]
 channel = "stable-24_05"
