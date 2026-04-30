@@ -9,8 +9,6 @@ venv/
 ENV/
 build/
 develop-eggs/
-dist/
-downloads/
 eggs/
 .eggs/
 lib/
@@ -27,12 +25,15 @@ wheels/
 node_modules/
 npm-debug.log
 yarn-error.log
-dist/
 .turbo/
+
+# Build output
+dist/
 
 # IDE
 .vscode/
 .idea/
+.sixth/
 *.swp
 *.swo
 *~
