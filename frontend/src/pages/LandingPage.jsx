@@ -4,17 +4,35 @@ import { usersAPI, demandsAPI } from '../api';
 import { CATEGORIES } from '../utils/constants';
 import './LandingPage.css';
 
+/* ── Category card gradients (fallback when no image) ── */
+const CAT_GRADIENTS = {
+  plomberie:     'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+  electricite:   'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+  peinture:      'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
+  menuiserie:    'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
+  maconnerie:    'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+  carrelage:     'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+  climatisation: 'linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)',
+  autre:         'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+};
+
+const CAT_EMOJIS = {
+  plomberie: '🔧', electricite: '⚡', peinture: '🎨', menuiserie: '🪚',
+  maconnerie: '🧱', carrelage: '🏗️', climatisation: '❄️', autre: '🔩',
+};
+
+/* ── Avatar colors ── */
 const AV_COLORS = [
-  { bg: '#EEEDFE', color: '#3C3489' },
-  { bg: '#E1F5EE', color: '#085041' },
-  { bg: '#FAECE7', color: '#712B13' },
-  { bg: '#FAEEDA', color: '#633806' },
-  { bg: '#E6F1FB', color: '#0C447C' },
-  { bg: '#FBEAF0', color: '#72243E' },
+  { bg: '#eeedfe', color: '#3c3489' },
+  { bg: '#e1f5ee', color: '#085041' },
+  { bg: '#faece7', color: '#712b13' },
+  { bg: '#faeeda', color: '#633806' },
+  { bg: '#e6f1fb', color: '#0c447c' },
+  { bg: '#fbeaf0', color: '#72243e' },
 ];
 
-function getInitials(firstName, lastName) {
-  return `${(firstName || '')[0] || ''}${(lastName || '')[0] || ''}`.toUpperCase();
+function getInitials(first, last) {
+  return `${(first || '')[0] || ''}${(last || '')[0] || ''}`.toUpperCase();
 }
 
 function Stars({ rating }) {
@@ -22,8 +40,8 @@ function Stars({ rating }) {
   return (
     <div className="lp-stars">
       {[1,2,3,4,5].map(i => (
-        <svg key={i} className={`lp-star${i <= r ? '' : ' lp-star-e'}`} viewBox="0 0 10 10">
-          <path d="M5 1l1.1 2.4 2.6.3-1.9 1.8.5 2.6L5 6.9 2.7 8.1l.5-2.6L1.3 3.7l2.6-.3z"/>
+        <svg key={i} className={`lp-star${i <= r ? '' : ' lp-star-e'}`} viewBox="0 0 20 20">
+          <path d="M10 2l2.2 4.8 5.2.6-3.8 3.6 1 5.2L10 13.8 5.4 16.2l1-5.2L2.6 7.4l5.2-.6z"/>
         </svg>
       ))}
     </div>
@@ -38,19 +56,17 @@ export default function LandingPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [artisansRes, demandsRes] = await Promise.all([
+        const [artRes, demRes] = await Promise.all([
           usersAPI.list('artisan'),
           demandsAPI.list(),
         ]);
-        setArtisans(artisansRes.data || []);
-        const allArtisans = artisansRes.data || [];
-        const allDemands = demandsRes.data || [];
+        setArtisans(artRes.data || []);
         setStats({
-          artisanCount: allArtisans.length,
-          demandCount: allDemands.length,
+          artisanCount: (artRes.data || []).length,
+          demandCount: (demRes.data || []).length,
         });
       } catch (err) {
-        console.error('Failed to load landing data:', err);
+        console.error('Landing data error:', err);
       } finally {
         setLoading(false);
       }
@@ -58,152 +74,182 @@ export default function LandingPage() {
     fetchData();
   }, []);
 
-  const displayedArtisans = artisans.slice(0, 4);
+  const displayed = artisans.slice(0, 4);
 
   return (
     <div className="lp-root">
-      {/* NAV */}
+
+      {/* ─── NAVBAR ─── */}
       <nav className="lp-nav">
-        <div className="lp-logo">artisan<span>connect</span></div>
+        <Link to="/" className="lp-logo">artisan<span>connect</span></Link>
+
+        <div className="lp-nav-center">
+          <div className="lp-search-bar">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+            <input placeholder="Rechercher un service..." />
+          </div>
+        </div>
+
         <div className="lp-nav-r">
-          <Link to="/register" className="lp-nb lp-nb-o">Je suis un artisan</Link>
-          <Link to="/login" className="lp-nb lp-nb-o">Connexion</Link>
-          <Link to="/register" className="lp-nb lp-nb-p">Publier un besoin</Link>
+          <Link to="/login" className="lp-nav-link">Connexion</Link>
+          <Link to="/register" className="lp-nav-btn">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="10" cy="7" r="3.5"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+            Rejoindre en tant que pro
+          </Link>
         </div>
       </nav>
 
-      {/* HERO */}
+      {/* ─── HERO ─── */}
       <div className="lp-hero">
-        <div className="lp-hero-inner">
-          <div className="lp-htag"><div className="lp-htag-dot" />Gratuit pour les clients · Réponse en 24h</div>
-          <h1>Décrivez votre besoin,<br/>les artisans viennent à vous</h1>
-          <p className="lp-hero-sub">Publiez votre demande en 2 minutes. Recevez jusqu'à 5 devis<br/>d'artisans vérifiés de votre région. Comparez et choisissez.</p>
+        <h1>Trouvez le bon artisan,<br/>en quelques clics</h1>
+        <p className="lp-hero-sub">
+          Publiez votre besoin gratuitement et recevez des devis d'artisans vérifiés près de chez vous.
+        </p>
 
-          <div className="lp-steps">
-            <div className="lp-step"><div className="lp-step-n">1</div><div className="lp-step-t">Décrivez</div><div className="lp-step-s">Votre besoin en détail</div></div>
-            <div className="lp-step"><div className="lp-step-n">2</div><div className="lp-step-t">Recevez</div><div className="lp-step-s">Jusqu'à 5 devis</div></div>
-            <div className="lp-step"><div className="lp-step-n">3</div><div className="lp-step-t">Choisissez</div><div className="lp-step-s">Le meilleur artisan</div></div>
+        <div className="lp-hero-search">
+          <div className="lp-hero-search-input">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+            <input placeholder="De quoi avez-vous besoin ? (ex: plombier, peintre...)" />
           </div>
+          <Link to="/register" className="lp-hero-search-btn">Rechercher</Link>
+        </div>
 
-          <div className="lp-sform">
-            <div className="lp-sform-top">
-              <div className="lp-sf-field">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>
-                <input placeholder="De quoi avez-vous besoin ?" />
-              </div>
-              <div className="lp-sf-div" />
-              <div className="lp-sf-loc">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 2a4 4 0 010 8c-2.2 0-4-1.8-4-4a4 4 0 014-4z"/><path d="M8 10v4"/></svg>
-                <select><option>Alger</option><option>Oran</option><option>Constantine</option><option>Annaba</option></select>
-              </div>
-              <Link to="/register" className="lp-sf-btn">Trouver des artisans</Link>
-            </div>
-            <div className="lp-sform-cats">
-              {CATEGORIES.map((c, i) => (
-                <span key={c.value} className={`lp-scat${i === 0 ? ' on' : ''}`}>{c.label.split(' ').slice(1).join(' ')}</span>
-              ))}
-            </div>
-          </div>
-
-          <div className="lp-trust">
-            <div className="lp-trust-item"><div className="lp-trust-icon">✓</div>Artisans vérifiés</div>
-            <div className="lp-trust-item"><div className="lp-trust-icon">✓</div>100% gratuit pour les clients</div>
-            <div className="lp-trust-item"><div className="lp-trust-icon">✓</div>Réponse sous 24h</div>
-          </div>
+        <div className="lp-hero-tags">
+          {CATEGORIES.slice(0, 6).map(c => (
+            <Link to="/register" key={c.value} className="lp-hero-tag">
+              {c.label}
+            </Link>
+          ))}
         </div>
       </div>
 
-      {/* HOW IT WORKS */}
-      <div className="lp-how">
-        <div className="lp-how-title">Comment ça fonctionne</div>
-        <div className="lp-how-steps">
-          <div className="lp-hw"><div className="lp-hw-num">1</div><div className="lp-hw-t">Publiez votre besoin</div><div className="lp-hw-s">Décrivez votre projet, votre budget et votre localisation en quelques clics.</div></div>
-          <div className="lp-hw"><div className="lp-hw-num">2</div><div className="lp-hw-t">Recevez des devis</div><div className="lp-hw-s">Les artisans intéressés vous contactent avec leurs propositions et tarifs.</div></div>
-          <div className="lp-hw"><div className="lp-hw-num">3</div><div className="lp-hw-t">Choisissez en confiance</div><div className="lp-hw-s">Comparez les profils, les avis et les prix. Choisissez le meilleur.</div></div>
+      {/* ─── CATEGORIES ─── */}
+      <div className="lp-categories">
+        <div className="lp-section-header">
+          <h2 className="lp-section-title">Catégories populaires</h2>
+          <Link to="/register" className="lp-section-link">
+            Voir tout →
+          </Link>
         </div>
-      </div>
 
-      {/* CATEGORIES */}
-      <div className="lp-cats-section">
-        <div className="lp-sec-head">
-          <div className="lp-sec-title">Catégories populaires</div>
-          <Link to="/register" className="lp-sec-link">Voir toutes les catégories</Link>
-        </div>
-        <div className="lp-cats-grid">
-          {CATEGORIES.slice(0, 4).map(c => {
+        <div className="lp-cat-grid">
+          {CATEGORIES.slice(0, 8).map(c => {
             const count = artisans.filter(a =>
               (a.specialties || []).some(s => s.toLowerCase().includes(c.value))
             ).length;
+
             return (
-              <div key={c.value} className="lp-ccat">
-                <div className="lp-ccat-icon">{c.label.split(' ')[0]}</div>
-                <div className="lp-ccat-name">{c.label.split(' ').slice(1).join(' ')}</div>
-                <div className="lp-ccat-count">{count} artisan{count !== 1 ? 's' : ''}</div>
-              </div>
+              <Link to="/register" key={c.value} className="lp-cat-card">
+                {/* Gradient fallback — replace with <img> when you have photos */}
+                <div
+                  className="lp-cat-card-fallback"
+                  style={{ background: CAT_GRADIENTS[c.value] || CAT_GRADIENTS.autre }}
+                >
+                  <span style={{ fontSize: 48, filter: 'grayscale(0.2)' }}>
+                    {CAT_EMOJIS[c.value] || '🔩'}
+                  </span>
+                </div>
+
+                <div className="lp-cat-card-overlay">
+                  <div className="lp-cat-card-name">{c.label.split(' ').slice(1).join(' ')}</div>
+                  {count > 0 && (
+                    <div className="lp-cat-card-count">{count} artisan{count > 1 ? 's' : ''}</div>
+                  )}
+                </div>
+              </Link>
             );
           })}
         </div>
       </div>
 
-      {/* ARTISANS */}
-      <div className="lp-section">
-        <div className="lp-sec-head">
-          <div className="lp-sec-title">
-            {displayedArtisans.length > 0
-              ? 'Artisans disponibles sur la plateforme'
-              : 'Aucun artisan inscrit pour le moment'}
+      {/* ─── HOW IT WORKS ─── */}
+      <div className="lp-how">
+        <div className="lp-how-inner">
+          <h2 className="lp-how-title">Comment ça marche</h2>
+          <div className="lp-how-grid">
+            <div className="lp-how-card">
+              <div className="lp-how-num">1</div>
+              <h3>Décrivez votre besoin</h3>
+              <p>Publiez votre projet en quelques clics : description, budget et localisation.</p>
+            </div>
+            <div className="lp-how-card">
+              <div className="lp-how-num">2</div>
+              <h3>Recevez des devis</h3>
+              <p>Les artisans intéressés vous contactent avec leurs propositions et tarifs.</p>
+            </div>
+            <div className="lp-how-card">
+              <div className="lp-how-num">3</div>
+              <h3>Choisissez en confiance</h3>
+              <p>Comparez les profils, avis et prix. Choisissez le meilleur artisan.</p>
+            </div>
           </div>
-          {displayedArtisans.length > 0 && (
-            <Link to="/register" className="lp-sec-link">Voir tous les artisans</Link>
+        </div>
+      </div>
+
+      {/* ─── ARTISANS ─── */}
+      <div className="lp-artisans">
+        <div className="lp-section-header">
+          <h2 className="lp-section-title">
+            {displayed.length > 0 ? 'Artisans sur la plateforme' : 'Rejoignez la plateforme'}
+          </h2>
+          {displayed.length > 0 && (
+            <Link to="/register" className="lp-section-link">Voir tous →</Link>
           )}
         </div>
-        <div className="lp-pros-grid">
+
+        <div className="lp-artisans-grid">
           {loading ? (
             <div className="lp-loading">Chargement...</div>
-          ) : displayedArtisans.length === 0 ? (
+          ) : displayed.length === 0 ? (
             <div className="lp-empty">
               <div className="lp-empty-icon">👷</div>
               <div className="lp-empty-text">Soyez le premier artisan à rejoindre la plateforme !</div>
               <Link to="/register" className="lp-empty-btn">S'inscrire comme artisan</Link>
             </div>
           ) : (
-            displayedArtisans.map((a, i) => {
-              const avStyle = AV_COLORS[i % AV_COLORS.length];
+            displayed.map((a, i) => {
+              const av = AV_COLORS[i % AV_COLORS.length];
               const initials = getInitials(a.first_name, a.last_name);
-              const specialties = a.specialties || [];
+              const specs = a.specialties || [];
               const isVerified = a.is_verified;
               const isNew = a.total_ratings === 0;
 
               return (
-                <div key={a.id} className="lp-pro-card">
-                  <div className="lp-pc-top">
-                    <div className="lp-av" style={{ background: avStyle.bg, color: avStyle.color }}>{initials}</div>
-                    <div className="lp-pc-info">
-                      <div className="lp-pc-name">{a.first_name} {a.last_name}</div>
-                      <div className="lp-pc-job">{specialties[0] || 'Artisan'}</div>
-                      {a.location && <div className="lp-pc-loc">{a.location}</div>}
+                <div key={a.id} className="lp-artisan-card">
+                  <div className="lp-artisan-top">
+                    <div className="lp-artisan-avatar" style={{ background: av.bg, color: av.color }}>
+                      {initials}
+                    </div>
+                    <div className="lp-artisan-info">
+                      <div className="lp-artisan-name">{a.first_name} {a.last_name}</div>
+                      <div className="lp-artisan-job">{specs[0] || 'Artisan'}</div>
+                      {a.location && <div className="lp-artisan-loc">📍 {a.location}</div>}
                     </div>
                   </div>
-                  <div className="lp-pc-badge" style={{
-                    background: isVerified ? '#EEEDFE' : isNew ? '#E1F5EE' : '#FAEEDA',
-                    color: isVerified ? '#3C3489' : isNew ? '#085041' : '#633806'
+
+                  <div className="lp-artisan-badge" style={{
+                    background: isVerified ? '#eeedfe' : isNew ? '#e1f5ee' : '#faeeda',
+                    color: isVerified ? '#3c3489' : isNew ? '#085041' : '#633806'
                   }}>
-                    {isVerified ? '✓ Profil vérifié' : isNew ? '● Nouveau' : '★ Artisan actif'}
+                    {isVerified ? '✓ Vérifié' : isNew ? '● Nouveau' : '★ Actif'}
                   </div>
-                  <div className="lp-pc-stars-row">
+
+                  <div className="lp-artisan-rating">
                     <Stars rating={a.average_rating} />
-                    <span className="lp-rn">{(a.average_rating || 0).toFixed(1)}</span>
-                    <span className="lp-rc">({a.total_ratings || 0} avis)</span>
+                    <span className="lp-artisan-rnum">{(a.average_rating || 0).toFixed(1)}</span>
+                    <span className="lp-artisan-rcount">({a.total_ratings || 0} avis)</span>
                   </div>
-                  {a.bio && <div className="lp-pc-resp">{a.bio}</div>}
-                  {specialties.length > 0 && (
-                    <div className="lp-pc-tags">
-                      {specialties.slice(0, 3).map((t, j) => <span key={j} className="lp-ptag">{t}</span>)}
+
+                  {specs.length > 0 && (
+                    <div className="lp-artisan-tags">
+                      {specs.slice(0, 3).map((t, j) => (
+                        <span key={j} className="lp-artisan-tag">{t}</span>
+                      ))}
                     </div>
                   )}
-                  <div className="lp-pc-foot">
-                    <div className="lp-pc-price" />
-                    <Link to="/register" className="lp-pc-cta">Contacter</Link>
+
+                  <div className="lp-artisan-foot">
+                    <Link to="/register" className="lp-artisan-cta">Contacter</Link>
                   </div>
                 </div>
               );
@@ -212,27 +258,30 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* STATS BAR */}
+      {/* ─── STATS ─── */}
       {(stats.artisanCount > 0 || stats.demandCount > 0) && (
-        <div className="lp-stats-bar">
-          <div className="lp-stat-item">
+        <div className="lp-stats">
+          <div className="lp-stat">
             <div className="lp-stat-num">{stats.artisanCount}</div>
             <div className="lp-stat-label">Artisan{stats.artisanCount !== 1 ? 's' : ''} inscrit{stats.artisanCount !== 1 ? 's' : ''}</div>
           </div>
-          <div className="lp-stat-item">
+          <div className="lp-stat">
             <div className="lp-stat-num">{stats.demandCount}</div>
             <div className="lp-stat-label">Demande{stats.demandCount !== 1 ? 's' : ''} publiée{stats.demandCount !== 1 ? 's' : ''}</div>
           </div>
         </div>
       )}
 
-      {/* CTA */}
-      <div className="lp-cta-bar">
-        <div>
-          <div className="lp-cta-text">Vous êtes un artisan professionnel ?</div>
-          <div className="lp-cta-sub">Rejoignez la plateforme et trouvez de nouveaux clients chaque semaine</div>
-        </div>
+      {/* ─── CTA ─── */}
+      <div className="lp-cta">
+        <h2>Vous êtes artisan professionnel ?</h2>
+        <p>Rejoignez la plateforme et trouvez de nouveaux clients chaque semaine.</p>
         <Link to="/register" className="lp-cta-btn">Créer mon profil artisan</Link>
+      </div>
+
+      {/* ─── FOOTER ─── */}
+      <div className="lp-footer">
+        © 2026 artisanconnect — Tous droits réservés
       </div>
     </div>
   );
