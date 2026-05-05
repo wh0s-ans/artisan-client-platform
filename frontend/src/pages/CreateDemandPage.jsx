@@ -34,8 +34,8 @@ export default function CreateDemandPage() {
         <button className="btn btn-outline" onClick={() => navigate(-1)}>← Retour</button>
       </div>
 
-      <div className="bark-card" style={{padding:24,maxWidth:640}}>
-        <form onSubmit={handleSubmit} style={{display:'flex',flexDirection:'column',gap:12}}>
+      <div className="bark-card" style={{padding:28,maxWidth:640}}>
+        <form onSubmit={handleSubmit} style={{display:'flex',flexDirection:'column',gap:14}}>
           {error && <div className="alert alert-error">{error}</div>}
           <div className="form-group">
             <label>Titre *</label>
@@ -70,7 +70,7 @@ export default function CreateDemandPage() {
               <input type="number" value={form.budget} onChange={e => setForm({...form, budget: e.target.value})} placeholder="Ex: 15000" min="0" />
             </div>
           </div>
-          <button type="submit" className="btn btn-primary btn-full" style={{marginTop:4}} disabled={loading}>
+          <button type="submit" className="btn btn-primary btn-full" style={{marginTop:6,padding:'12px 18px'}} disabled={loading}>
             {loading ? <span className="spinner-sm" /> : 'Publier la demande'}
           </button>
         </form>

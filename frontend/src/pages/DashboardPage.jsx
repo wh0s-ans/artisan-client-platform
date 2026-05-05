@@ -35,7 +35,7 @@ export default function DashboardPage() {
           <h1>Bonjour, {user.first_name} 👋</h1>
           <p className="page-subtitle">{isClient ? 'Gérez vos demandes et trouvez des artisans' : 'Découvrez de nouvelles opportunités'}</p>
         </div>
-        <Link to={isClient ? '/demands/create' : '/demands'} className="lp-nb lp-nb-p" style={{textDecoration:'none'}}>
+        <Link to={isClient ? '/demands/create' : '/demands'} className="btn btn-primary">
           {isClient ? '+ Nouvelle demande' : 'Voir les demandes'}
         </Link>
       </div>
@@ -43,25 +43,25 @@ export default function DashboardPage() {
       <div className="stats-grid">
         {isClient ? (
           <>
-            <StatCard label="Demandes actives" value={stats?.active_demands || 0} emoji="📋" color="#534AB7" />
-            <StatCard label="Terminées" value={stats?.completed_demands || 0} emoji="✅" color="#1D9E75" />
-            <StatCard label="Total demandes" value={stats?.total_demands || 0} emoji="📊" color="#534AB7" />
-            <StatCard label="Note moyenne" value={stats?.average_rating?.toFixed(1) || '—'} emoji="⭐" color="#EF9F27" />
+            <StatCard label="Demandes actives" value={stats?.active_demands || 0} emoji="📋" color="#5b4ed4" />
+            <StatCard label="Terminées" value={stats?.completed_demands || 0} emoji="✅" color="#22c55e" />
+            <StatCard label="Total demandes" value={stats?.total_demands || 0} emoji="📊" color="#5b4ed4" />
+            <StatCard label="Note moyenne" value={stats?.average_rating?.toFixed(1) || '—'} emoji="⭐" color="#f59e0b" />
           </>
         ) : (
           <>
-            <StatCard label="Propositions envoyées" value={stats?.total_proposals || 0} emoji="📤" color="#534AB7" />
-            <StatCard label="Acceptées" value={stats?.accepted_proposals || 0} emoji="✅" color="#1D9E75" />
-            <StatCard label="En attente" value={stats?.pending_proposals || 0} emoji="⏳" color="#EF9F27" />
-            <StatCard label="Note moyenne" value={stats?.average_rating?.toFixed(1) || '—'} emoji="⭐" color="#EF9F27" />
+            <StatCard label="Propositions envoyées" value={stats?.total_proposals || 0} emoji="📤" color="#5b4ed4" />
+            <StatCard label="Acceptées" value={stats?.accepted_proposals || 0} emoji="✅" color="#22c55e" />
+            <StatCard label="En attente" value={stats?.pending_proposals || 0} emoji="⏳" color="#f59e0b" />
+            <StatCard label="Note moyenne" value={stats?.average_rating?.toFixed(1) || '—'} emoji="⭐" color="#f59e0b" />
           </>
         )}
       </div>
 
-      <div className="bark-card" style={{padding:20}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+      <div className="bark-card" style={{padding:24}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
           <div className="bark-section-title" style={{margin:0}}>{isClient ? 'Mes demandes récentes' : 'Demandes disponibles'}</div>
-          <Link to="/demands" style={{fontSize:13,color:'#534AB7'}}>Voir tout →</Link>
+          <Link to="/demands" style={{fontSize:14,color:'var(--primary)',fontWeight:500}}>Voir tout →</Link>
         </div>
         {recentItems.length === 0 ? (
           <div className="empty-state">
@@ -82,11 +82,11 @@ export default function DashboardPage() {
 
 function StatCard({ label, value, emoji, color }) {
   return (
-    <div className="bark-card" style={{padding:14,display:'flex',alignItems:'center',gap:12,borderTop:`2px solid ${color}`}}>
-      <div style={{width:36,height:36,borderRadius:8,background:color+'15',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18}}>{emoji}</div>
+    <div className="bark-card" style={{padding:18,display:'flex',alignItems:'center',gap:14,borderTop:`3px solid ${color}`}}>
+      <div style={{width:42,height:42,borderRadius:12,background:color+'12',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>{emoji}</div>
       <div>
-        <span style={{fontSize:20,fontWeight:600,display:'block',color:'#1a1a1a'}}>{value}</span>
-        <span style={{fontSize:11,color:'#9a9aa5'}}>{label}</span>
+        <span style={{fontSize:24,fontWeight:700,display:'block',color:'var(--text)',letterSpacing:'-.5px'}}>{value}</span>
+        <span style={{fontSize:12,color:'var(--text-muted)',fontWeight:500}}>{label}</span>
       </div>
     </div>
   );

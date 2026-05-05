@@ -49,25 +49,27 @@ export default function ProfilePage() {
   };
 
   if (loading) return <div className="page-loading"><div className="spinner" /></div>;
-  if (!profile) return <div className="page"><div className="bark-card" style={{padding:40}}><div className="empty-state"><p>Profil introuvable</p></div></div></div>;
+  if (!profile) return <div className="page"><div className="bark-card" style={{padding:48}}><div className="empty-state"><p>Profil introuvable</p></div></div></div>;
 
   const isArtisan = profile.user_type === 'artisan';
 
   return (
     <div className="page">
       {/* Header */}
-      <div className="bark-card" style={{padding:24,display:'flex',alignItems:'center',gap:16,marginBottom:16,flexWrap:'wrap'}}>
-        <div style={{width:56,height:56,borderRadius:'50%',background:'#EEEDFE',color:'#3C3489',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:500,flexShrink:0}}>
+      <div className="bark-card" style={{padding:28,display:'flex',alignItems:'center',gap:18,marginBottom:18,flexWrap:'wrap'}}>
+        <div style={{width:64,height:64,borderRadius:'50%',background:'var(--primary-light)',color:'var(--primary-dark)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,fontWeight:600,flexShrink:0}}>
           {profile.first_name?.[0]}{profile.last_name?.[0]}
         </div>
         <div style={{flex:1}}>
-          <h1 style={{fontSize:18,fontWeight:500,letterSpacing:'-.3px'}}>{profile.first_name} {profile.last_name}</h1>
-          <span style={{fontSize:12,color:'#5f5f6b'}}>{isArtisan ? '🔧 Artisan' : '👤 Client'}</span>
-          <div style={{display:'flex',alignItems:'center',gap:6,marginTop:3}}>
+          <h1 style={{fontSize:22,fontWeight:700,letterSpacing:'-.5px'}}>{profile.first_name} {profile.last_name}</h1>
+          <span style={{fontSize:13,color:'var(--text-secondary)'}}>
+            {isArtisan ? '🔧 Artisan' : '👤 Client'}
+          </span>
+          <div style={{display:'flex',alignItems:'center',gap:6,marginTop:4}}>
             <RatingStars value={profile.average_rating || 0} size={14} />
-            <span style={{fontSize:12,color:'#9a9aa5'}}>({profile.total_ratings || 0} avis)</span>
+            <span style={{fontSize:13,color:'var(--text-muted)'}}>({profile.total_ratings || 0} avis)</span>
           </div>
-          {profile.location && <span style={{fontSize:12,color:'#9a9aa5'}}>📍 {profile.location}</span>}
+          {profile.location && <span style={{fontSize:13,color:'var(--text-muted)'}}>📍 {profile.location}</span>}
         </div>
         {isOwnProfile && !editing && (
           <button className="btn btn-outline" onClick={() => setEditing(true)}>✏️ Modifier</button>
@@ -75,9 +77,9 @@ export default function ProfilePage() {
       </div>
 
       {/* Edit / Info */}
-      <div className="bark-card" style={{padding:20,marginBottom:16}}>
+      <div className="bark-card" style={{padding:24,marginBottom:18}}>
         {editing ? (
-          <div style={{display:'flex',flexDirection:'column',gap:12}}>
+          <div style={{display:'flex',flexDirection:'column',gap:14}}>
             <div className="bark-section-title" style={{margin:0}}>Modifier mon profil</div>
             <div className="form-row">
               <div className="form-group"><label>Prénom</label><input value={form.first_name} onChange={e => setForm({...form, first_name: e.target.value})} /></div>
@@ -101,20 +103,20 @@ export default function ProfilePage() {
           </div>
         ) : (
           <>
-            <div className="bark-section-title" style={{margin:'0 0 12px'}}>Informations</div>
-            {profile.bio && <p style={{fontSize:13,color:'#5f5f6b',lineHeight:1.6,marginBottom:12}}>{profile.bio}</p>}
-            <div style={{display:'flex',flexDirection:'column',gap:8}}>
-              <div style={{fontSize:13,color:'#5f5f6b'}}>✉️ {profile.email}</div>
-              {profile.phone && <div style={{fontSize:13,color:'#5f5f6b'}}>📞 {profile.phone}</div>}
-              {profile.location && <div style={{fontSize:13,color:'#5f5f6b'}}>📍 {profile.location}</div>}
-              {isArtisan && profile.availability && <div style={{fontSize:13,color:'#5f5f6b'}}>🕐 {profile.availability}</div>}
-              {isArtisan && profile.service_radius && <div style={{fontSize:13,color:'#5f5f6b'}}>📐 Rayon : {profile.service_radius} km</div>}
+            <div className="bark-section-title" style={{margin:'0 0 14px'}}>Informations</div>
+            {profile.bio && <p style={{fontSize:14,color:'var(--text-secondary)',lineHeight:1.7,marginBottom:14}}>{profile.bio}</p>}
+            <div style={{display:'flex',flexDirection:'column',gap:10}}>
+              <div style={{fontSize:14,color:'var(--text-secondary)'}}>✉️ {profile.email}</div>
+              {profile.phone && <div style={{fontSize:14,color:'var(--text-secondary)'}}>📞 {profile.phone}</div>}
+              {profile.location && <div style={{fontSize:14,color:'var(--text-secondary)'}}>📍 {profile.location}</div>}
+              {isArtisan && profile.availability && <div style={{fontSize:14,color:'var(--text-secondary)'}}>🕐 {profile.availability}</div>}
+              {isArtisan && profile.service_radius && <div style={{fontSize:14,color:'var(--text-secondary)'}}>📐 Rayon : {profile.service_radius} km</div>}
             </div>
             {isArtisan && profile.specialties && profile.specialties.length > 0 && (
-              <div style={{marginTop:12}}>
-                <div style={{fontSize:13,fontWeight:500,marginBottom:6}}>Spécialités</div>
-                <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
-                  {profile.specialties.map((s, i) => <span key={i} className="lp-ptag">{s}</span>)}
+              <div style={{marginTop:14}}>
+                <div style={{fontSize:14,fontWeight:600,marginBottom:8}}>Spécialités</div>
+                <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                  {profile.specialties.map((s, i) => <span key={i} className="specialty-chip">{s}</span>)}
                 </div>
               </div>
             )}
@@ -123,20 +125,20 @@ export default function ProfilePage() {
       </div>
 
       {/* Ratings */}
-      <div className="bark-card" style={{padding:20}}>
-        <div className="bark-section-title" style={{margin:'0 0 12px'}}>Avis ({ratings.length})</div>
+      <div className="bark-card" style={{padding:24}}>
+        <div className="bark-section-title" style={{margin:'0 0 14px'}}>Avis ({ratings.length})</div>
         {ratings.length === 0 ? (
           <div className="empty-state-sm"><p>Aucun avis pour le moment</p></div>
         ) : (
-          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+          <div style={{display:'flex',flexDirection:'column',gap:12}}>
             {ratings.map(r => (
-              <div key={r.id} style={{background:'#f3f3f5',padding:12,borderRadius:8,border:'.5px solid #ededf0'}}>
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
-                  <strong style={{fontSize:13}}>{r.rater?.first_name} {r.rater?.last_name}</strong>
+              <div key={r.id} style={{background:'var(--bg-secondary)',padding:14,borderRadius:14,border:'1px solid var(--border)'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                  <strong style={{fontSize:14}}>{r.rater?.first_name} {r.rater?.last_name}</strong>
                   <RatingStars value={r.score} size={12} />
                 </div>
-                {r.comment && <p style={{fontSize:12,color:'#5f5f6b'}}>{r.comment}</p>}
-                <span style={{fontSize:11,color:'#9a9aa5'}}>{formatDate(r.created_at)}</span>
+                {r.comment && <p style={{fontSize:13,color:'var(--text-secondary)'}}>{r.comment}</p>}
+                <span style={{fontSize:12,color:'var(--text-muted)'}}>{formatDate(r.created_at)}</span>
               </div>
             ))}
           </div>

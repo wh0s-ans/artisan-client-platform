@@ -25,25 +25,25 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="lp-root">
-      <nav className="lp-nav">
-        <Link to="/" className="lp-logo" style={{textDecoration:'none'}}>artisan<span>connect</span></Link>
-        <div className="lp-nav-r">
-          <Link to="/register" className="lp-nb lp-nb-p">S'inscrire</Link>
-        </div>
+    <div style={{minHeight:'100vh',background:'var(--bg)',fontFamily:'var(--font)'}}>
+      <nav style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 32px',height:64,background:'#fff',borderBottom:'1px solid var(--border-light)'}}>
+        <Link to="/" style={{fontSize:22,fontWeight:700,color:'var(--text)',letterSpacing:'-.8px',textDecoration:'none'}}>
+          artisan<span style={{color:'var(--primary)'}}>connect</span>
+        </Link>
+        <Link to="/register" className="btn btn-outline">S'inscrire</Link>
       </nav>
 
-      <div style={{maxWidth:420,margin:'60px auto',padding:'0 20px'}}>
-        <div className="bark-card" style={{padding:'32px'}}>
-          <div style={{textAlign:'center',marginBottom:24}}>
-            <div style={{width:48,height:48,borderRadius:'50%',background:'#EEEDFE',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px',fontSize:20}}>🔑</div>
-            <h1 style={{fontSize:20,fontWeight:500,letterSpacing:'-.3px',marginBottom:4}}>Connexion</h1>
-            <p style={{fontSize:13,color:'#5f5f6b'}}>Accédez à votre espace</p>
+      <div style={{maxWidth:440,margin:'80px auto',padding:'0 20px'}}>
+        <div className="bark-card" style={{padding:36}}>
+          <div style={{textAlign:'center',marginBottom:28}}>
+            <div style={{width:56,height:56,borderRadius:14,background:'var(--primary-light)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',fontSize:24}}>🔑</div>
+            <h1 style={{fontSize:24,fontWeight:700,letterSpacing:'-.5px',marginBottom:6}}>Connexion</h1>
+            <p style={{fontSize:14,color:'var(--text-secondary)'}}>Accédez à votre espace</p>
           </div>
 
-          {error && <div className="alert alert-error" style={{marginBottom:12}}>{error}</div>}
+          {error && <div className="alert alert-error" style={{marginBottom:14}}>{error}</div>}
 
-          <form onSubmit={handleSubmit} style={{display:'flex',flexDirection:'column',gap:12}}>
+          <form onSubmit={handleSubmit} style={{display:'flex',flexDirection:'column',gap:14}}>
             <div className="form-group">
               <label>Email</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="votre@email.com" required />
@@ -52,13 +52,13 @@ export default function LoginPage() {
               <label>Mot de passe</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
             </div>
-            <button type="submit" className="btn btn-primary btn-full" style={{marginTop:4}} disabled={loading}>
+            <button type="submit" className="btn btn-primary btn-full" style={{marginTop:4,padding:'12px 18px'}} disabled={loading}>
               {loading ? <span className="spinner-sm" /> : 'Se connecter'}
             </button>
           </form>
 
-          <p style={{textAlign:'center',fontSize:12,color:'#5f5f6b',marginTop:16}}>
-            Pas encore de compte ? <Link to="/register" style={{color:'#534AB7',fontWeight:600}}>S'inscrire</Link>
+          <p style={{textAlign:'center',fontSize:13,color:'var(--text-secondary)',marginTop:20}}>
+            Pas encore de compte ? <Link to="/register" style={{color:'var(--primary)',fontWeight:600}}>S'inscrire</Link>
           </p>
         </div>
       </div>

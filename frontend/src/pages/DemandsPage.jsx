@@ -32,13 +32,13 @@ export default function DemandsPage() {
         </div>
       </div>
 
-      <div className="bark-card" style={{padding:'10px 14px',marginBottom:16,display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
-        <span style={{fontSize:13,color:'#5f5f6b',fontWeight:500}}>Filtres</span>
-        <select value={category} onChange={e => setCategory(e.target.value)} style={{padding:'7px 10px',border:'.5px solid #e5e5e8',borderRadius:6,fontSize:12,color:'#1a1a1a',background:'#fff'}}>
+      <div className="bark-card" style={{padding:'12px 16px',marginBottom:18,display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+        <span style={{fontSize:14,color:'var(--text-secondary)',fontWeight:600}}>Filtres</span>
+        <select value={category} onChange={e => setCategory(e.target.value)} style={{padding:'8px 12px',border:'1px solid var(--border)',borderRadius:8,fontSize:13,color:'var(--text)',background:'#fff'}}>
           <option value="">Toutes les catégories</option>
           {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
         </select>
-        <select value={status} onChange={e => setStatus(e.target.value)} style={{padding:'7px 10px',border:'.5px solid #e5e5e8',borderRadius:6,fontSize:12,color:'#1a1a1a',background:'#fff'}}>
+        <select value={status} onChange={e => setStatus(e.target.value)} style={{padding:'8px 12px',border:'1px solid var(--border)',borderRadius:8,fontSize:13,color:'var(--text)',background:'#fff'}}>
           <option value="">Tous les statuts</option>
           <option value="pending">En attente</option>
           <option value="accepted">Accepté</option>
@@ -50,7 +50,7 @@ export default function DemandsPage() {
       {loading ? (
         <div className="page-loading"><div className="spinner" /></div>
       ) : demands.length === 0 ? (
-        <div className="bark-card" style={{padding:40}}><div className="empty-state"><p>Aucune demande trouvée</p></div></div>
+        <div className="bark-card" style={{padding:48}}><div className="empty-state"><p>Aucune demande trouvée</p></div></div>
       ) : (
         <div className="demands-grid">
           {demands.map(d => <DemandCard key={d.id} demand={d} />)}

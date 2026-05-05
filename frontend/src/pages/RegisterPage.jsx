@@ -26,49 +26,49 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="lp-root">
-      <nav className="lp-nav">
-        <Link to="/" className="lp-logo" style={{textDecoration:'none'}}>artisan<span>connect</span></Link>
-        <div className="lp-nav-r">
-          <Link to="/login" className="lp-nb lp-nb-o">Connexion</Link>
-        </div>
+    <div style={{minHeight:'100vh',background:'var(--bg)',fontFamily:'var(--font)'}}>
+      <nav style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 32px',height:64,background:'#fff',borderBottom:'1px solid var(--border-light)'}}>
+        <Link to="/" style={{fontSize:22,fontWeight:700,color:'var(--text)',letterSpacing:'-.8px',textDecoration:'none'}}>
+          artisan<span style={{color:'var(--primary)'}}>connect</span>
+        </Link>
+        <Link to="/login" className="btn btn-outline">Connexion</Link>
       </nav>
 
-      <div style={{maxWidth:480,margin:'40px auto',padding:'0 20px'}}>
-        <div className="bark-card" style={{padding:'32px'}}>
+      <div style={{maxWidth:500,margin:'60px auto',padding:'0 20px'}}>
+        <div className="bark-card" style={{padding:36}}>
           {step === 1 ? (
             <>
-              <div style={{textAlign:'center',marginBottom:20}}>
-                <div style={{width:48,height:48,borderRadius:'50%',background:'#EEEDFE',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px',fontSize:20}}>👋</div>
-                <h1 style={{fontSize:20,fontWeight:500,letterSpacing:'-.3px',marginBottom:4}}>Inscription</h1>
-                <p style={{fontSize:13,color:'#5f5f6b'}}>Choisissez votre profil</p>
+              <div style={{textAlign:'center',marginBottom:24}}>
+                <div style={{width:56,height:56,borderRadius:14,background:'var(--primary-light)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',fontSize:24}}>👋</div>
+                <h1 style={{fontSize:24,fontWeight:700,letterSpacing:'-.5px',marginBottom:6}}>Inscription</h1>
+                <p style={{fontSize:14,color:'var(--text-secondary)'}}>Choisissez votre profil</p>
               </div>
               <div className="type-selection">
                 <button className={`type-card ${userType === 'artisan' ? 'selected' : ''}`} onClick={() => setUserType('artisan')}>
-                  <div style={{fontSize:28}}>🔧</div>
+                  <div style={{fontSize:32}}>🔧</div>
                   <h3>Artisan</h3>
                   <p>Je propose mes services</p>
                 </button>
                 <button className={`type-card ${userType === 'client' ? 'selected' : ''}`} onClick={() => setUserType('client')}>
-                  <div style={{fontSize:28}}>👤</div>
+                  <div style={{fontSize:32}}>👤</div>
                   <h3>Client</h3>
                   <p>Je cherche un artisan</p>
                 </button>
               </div>
-              <button className="btn btn-primary btn-full" style={{marginTop:16}} disabled={!userType} onClick={() => setStep(2)}>
+              <button className="btn btn-primary btn-full" style={{marginTop:20,padding:'12px 18px'}} disabled={!userType} onClick={() => setStep(2)}>
                 Continuer
               </button>
-              <p style={{textAlign:'center',fontSize:12,color:'#5f5f6b',marginTop:16}}>
-                Déjà un compte ? <Link to="/login" style={{color:'#534AB7',fontWeight:600}}>Se connecter</Link>
+              <p style={{textAlign:'center',fontSize:13,color:'var(--text-secondary)',marginTop:20}}>
+                Déjà un compte ? <Link to="/login" style={{color:'var(--primary)',fontWeight:600}}>Se connecter</Link>
               </p>
             </>
           ) : (
-            <form onSubmit={handleSubmit} style={{display:'flex',flexDirection:'column',gap:12}}>
+            <form onSubmit={handleSubmit} style={{display:'flex',flexDirection:'column',gap:14}}>
               <div style={{textAlign:'center',marginBottom:8}}>
-                <h1 style={{fontSize:20,fontWeight:500,letterSpacing:'-.3px',marginBottom:4}}>
+                <h1 style={{fontSize:24,fontWeight:700,letterSpacing:'-.5px',marginBottom:6}}>
                   Inscription {userType === 'artisan' ? '🔧' : '👤'}
                 </h1>
-                <p style={{fontSize:13,color:'#5f5f6b'}}>Complétez vos informations</p>
+                <p style={{fontSize:14,color:'var(--text-secondary)'}}>Complétez vos informations</p>
               </div>
               {error && <div className="alert alert-error">{error}</div>}
               <div className="form-row">
@@ -99,7 +99,7 @@ export default function RegisterPage() {
               </div>
               <div style={{display:'flex',gap:8,justifyContent:'space-between',marginTop:4}}>
                 <button type="button" className="btn btn-outline" onClick={() => setStep(1)}>← Retour</button>
-                <button type="submit" className="btn btn-primary" disabled={loading}>
+                <button type="submit" className="btn btn-primary" style={{padding:'10px 24px'}} disabled={loading}>
                   {loading ? <span className="spinner-sm" /> : "S'inscrire"}
                 </button>
               </div>
