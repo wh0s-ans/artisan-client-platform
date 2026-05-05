@@ -4,22 +4,29 @@ import { usersAPI, demandsAPI } from '../api';
 import { CATEGORIES } from '../utils/constants';
 import './LandingPage.css';
 
-/* ── Category card gradients (fallback when no image) ── */
+/* ── Category images ── */
+import imgPlomberie from '../assets/categories/plomberie.jpg';
+import imgElectricite from '../assets/categories/electricite.jpg';
+import imgPeinture from '../assets/categories/peinture.jpg';
+import imgMenuiserie from '../assets/categories/menuiserie.jpg';
+import imgMaconnerie from '../assets/categories/maconnerie.jpg';
+import imgCarrelage from '../assets/categories/carrelage.jpg';
+
+const CAT_IMAGES = {
+  plomberie: imgPlomberie,
+  electricite: imgElectricite,
+  peinture: imgPeinture,
+  menuiserie: imgMenuiserie,
+  maconnerie: imgMaconnerie,
+  carrelage: imgCarrelage,
+};
+
+/* Gradient fallback for categories without photos */
 const CAT_GRADIENTS = {
-  plomberie:     'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-  electricite:   'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-  peinture:      'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
-  menuiserie:    'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-  maconnerie:    'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
-  carrelage:     'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
   climatisation: 'linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)',
   autre:         'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
 };
-
-const CAT_EMOJIS = {
-  plomberie: '🔧', electricite: '⚡', peinture: '🎨', menuiserie: '🪚',
-  maconnerie: '🧱', carrelage: '🏗️', climatisation: '❄️', autre: '🔩',
-};
+const CAT_EMOJIS = { climatisation: '❄️', autre: '🔩' };
 
 /* ── Avatar colors ── */
 const AV_COLORS = [
@@ -140,15 +147,18 @@ export default function LandingPage() {
 
             return (
               <Link to="/register" key={c.value} className="lp-cat-card">
-                {/* Gradient fallback — replace with <img> when you have photos */}
-                <div
-                  className="lp-cat-card-fallback"
-                  style={{ background: CAT_GRADIENTS[c.value] || CAT_GRADIENTS.autre }}
-                >
-                  <span style={{ fontSize: 48, filter: 'grayscale(0.2)' }}>
-                    {CAT_EMOJIS[c.value] || '🔩'}
-                  </span>
-                </div>
+                {CAT_IMAGES[c.value] ? (
+                  <img src={CAT_IMAGES[c.value]} alt={c.label} className="lp-cat-card-img" />
+                ) : (
+                  <div
+                    className="lp-cat-card-fallback"
+                    style={{ background: CAT_GRADIENTS[c.value] || CAT_GRADIENTS.autre }}
+                  >
+                    <span style={{ fontSize: 48, filter: 'grayscale(0.2)' }}>
+                      {CAT_EMOJIS[c.value] || '🔩'}
+                    </span>
+                  </div>
+                )}
 
                 <div className="lp-cat-card-overlay">
                   <div className="lp-cat-card-name">{c.label.split(' ').slice(1).join(' ')}</div>
